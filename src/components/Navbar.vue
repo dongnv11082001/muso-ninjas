@@ -4,9 +4,13 @@
       <img src="@/assets/ncs_10_years.jpeg" alt="" />
       <h1><router-link :to="{ name: 'home' }">Muso Ninjas</router-link></h1>
       <div class="links">
-        <button @click="handleClick">Logout</button>
-        <router-link class="btn" :to="{ name: 'signup' }">Signup</router-link>
-        <router-link class="btn" :to="{ name: 'login' }">Login</router-link>
+        <div v-if="currentUser">
+          <button @click="handleClick">Logout</button>
+        </div>
+        <div v-else>
+          <router-link class="btn" :to="{ name: 'signup' }">Signup</router-link>
+          <router-link class="btn" :to="{ name: 'login' }">Login</router-link>
+        </div>
       </div>
     </nav>
   </div>
@@ -15,14 +19,14 @@
 <script lang="ts">
 import { auth } from "@/firebase/config";
 import { signOut, onAuthStateChanged } from "firebase/auth";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 export default {
   setup() {
     const route = useRouter();
+    const currentUser = ref(auth.currentUser);
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        route.push({ name: "home" });
-      }
+      currentUser.value = user;
     });
     const handleClick = async () => {
       await signOut(auth);
@@ -30,6 +34,7 @@ export default {
     };
     return {
       handleClick,
+      currentUser,
     };
   },
 };
