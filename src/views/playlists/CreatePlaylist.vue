@@ -7,7 +7,8 @@
       v-model="description"
     ></textarea>
     <label>Upload cover image</label>
-    <input type="file" />
+    <input type="file" @change="handleChange" />
+    <div class="error">{{ fileError }}</div>
     <button>Create</button>
   </form>
 </template>
@@ -19,15 +20,36 @@ export default {
   setup() {
     const title = ref("");
     const description = ref("");
+    const fileRef = ref<File | null>();
+    const fileError = ref("");
+    const fileTypes = ["image/png", "image/jpeg"];
 
     const handleSubmit = () => {
-      console.log(title.value, description.value);
+      if (fileRef.value) {
+        console.log(title.value, description.value);
+      }
+    };
+
+    const handleChange = (e: Event) => {
+      const inputElement = e.target as HTMLInputElement;
+      if (
+        inputElement.files &&
+        fileTypes.includes(inputElement.files[0].type)
+      ) {
+        const selected = inputElement.files[0];
+        fileRef.value = selected;
+      } else {
+        fileRef.value = null;
+        fileError.value = "Please select an image file (png or jpeg)";
+      }
     };
 
     return {
       title,
       description,
       handleSubmit,
+      handleChange,
+      fileError,
     };
   },
 };
