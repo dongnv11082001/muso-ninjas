@@ -15,6 +15,8 @@
 
 <script lang="ts">
 import { ref } from "vue";
+import useStorage from "@/composables/useStorage";
+import { auth } from "@/firebase/config";
 
 export default {
   setup() {
@@ -24,9 +26,16 @@ export default {
     const fileError = ref("");
     const fileTypes = ["image/png", "image/jpeg"];
 
-    const handleSubmit = () => {
-      if (fileRef.value) {
-        console.log(title.value, description.value);
+    const { url, uploadImage } = useStorage();
+
+    const handleSubmit = async () => {
+      if (!auth.currentUser) {
+        console.log("Please login to create a playlist");
+        return;
+      }
+      if (fileRef.value && auth.currentUser) {
+        await uploadImage(fileRef.value);
+        console.log("image uploaded, url: ", url.value);
       }
     };
 
