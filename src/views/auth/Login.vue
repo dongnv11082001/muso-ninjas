@@ -12,12 +12,15 @@
 import { auth } from "@/firebase/config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+
 export default {
   setup() {
     const email = ref("");
     const password = ref("");
     const isPending = ref(false);
     const error = ref("");
+    const router = useRouter();
 
     const handleSubmit = async () => {
       try {
@@ -27,6 +30,7 @@ export default {
           email.value,
           password.value
         );
+        router.push({ name: "home" });
         console.log(response.user);
       } catch (err: any) {
         isPending.value = false;

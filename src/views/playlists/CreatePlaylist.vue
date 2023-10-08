@@ -31,7 +31,7 @@ export default {
     const isPending = ref(false);
     const { user } = getUser();
 
-    const { url, uploadImage } = useStorage();
+    const { url, uploadImage, filePath } = useStorage();
 
     const handleSubmit = async () => {
       if (!user) {
@@ -50,6 +50,8 @@ export default {
             userId: user.value?.uid,
             username: user.value?.displayName,
             createdAt: serverTimestamp(),
+            songs: [],
+            filePath: filePath.value,
           });
         } catch (err: any) {
           isPending.value = false;
@@ -91,7 +93,7 @@ input[type="file"] {
 }
 
 label {
-  font-size: 12px;
+  font-size: 14px;
   display: block;
   margin-top: 30px;
 }

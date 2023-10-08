@@ -73,4 +73,7 @@ button {
   margin-left: 16px;
   font-size: 14px;
 }
+nav .links a:hover {
+  text-decoration: underline;
+}
 </style>
