@@ -1,6 +1,11 @@
 import { ref } from "vue";
 import getUser from "./getUser";
-import { firebaseStorage, storage } from "@/firebase/config";
+import { storage } from "@/firebase/config";
+import {
+  uploadBytes,
+  getDownloadURL,
+  ref as firebaseRef,
+} from "firebase/storage";
 
 const { user } = getUser();
 
@@ -15,12 +20,12 @@ const useStorage = () => {
       return;
     }
     filePath.value = `covers/${user.value.uid}/${file.name}`;
-    const storageRef = firebaseStorage.ref(storage, filePath.value);
+    const storageRef = firebaseRef(storage, filePath.value);
 
     try {
-      const res = await firebaseStorage.uploadBytes(storageRef, file);
-      console.log(res);
-      url.value = await firebaseStorage.getDownloadURL(storageRef);
+      const res = await uploadBytes(storageRef, file);
+      url.value = await getDownloadURL(storageRef);
+      return res;
     } catch (err: any) {
       console.log(err.message);
       error.value = err.message;

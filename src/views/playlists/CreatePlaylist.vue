@@ -9,14 +9,17 @@
     <label>Upload cover image</label>
     <input type="file" @change="handleChange" />
     <div class="error">{{ fileError }}</div>
-    <button>Create</button>
+    <button v-if="!isPending">Create</button>
+    <button v-else disabled>Saving...</button>
   </form>
 </template>
 
 <script lang="ts">
 import { ref } from "vue";
 import useStorage from "@/composables/useStorage";
-import { auth } from "@/firebase/config";
+import { db } from "@/firebase/config";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import getUser from "@/composables/getUser";
 
 export default {
   setup() {
@@ -25,17 +28,33 @@ export default {
     const fileRef = ref<File | null>();
     const fileError = ref("");
     const fileTypes = ["image/png", "image/jpeg"];
+    const isPending = ref(false);
+    const { user } = getUser();
 
     const { url, uploadImage } = useStorage();
 
     const handleSubmit = async () => {
-      if (!auth.currentUser) {
+      if (!user) {
         console.log("Please login to create a playlist");
         return;
       }
-      if (fileRef.value && auth.currentUser) {
+      if (fileRef.value) {
+        isPending.value = true;
         await uploadImage(fileRef.value);
-        console.log("image uploaded, url: ", url.value);
+        try {
+          const collectionRef = collection(db, "playlists");
+          await addDoc(collectionRef, {
+            title: title.value,
+            description: description.value,
+            cover: url.value,
+            userId: user.value?.uid,
+            username: user.value?.displayName,
+            createdAt: serverTimestamp(),
+          });
+        } catch (err: any) {
+          isPending.value = false;
+          console.log(err.message);
+        }
       }
     };
 
@@ -59,6 +78,7 @@ export default {
       handleSubmit,
       handleChange,
       fileError,
+      isPending,
     };
   },
 };
