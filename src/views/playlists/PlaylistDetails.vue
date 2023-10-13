@@ -1,17 +1,15 @@
 <template>
-  // TODO: Fix Suspense
   <div class="error" v-if="error">{{ error }}</div>
   <div v-if="playlist" class="playlist-details">
     <!-- playlist information -->
     <div class="playlist-info">
       <div class="cover">
-        <img :src="playlist.coverUrl" />
+        <img :src="playlist.cover" />
       </div>
       <h2>{{ playlist.title }}</h2>
       <p class="username">Created by {{ playlist.userName }}</p>
       <p class="description">{{ playlist.description }}</p>
     </div>
-
     <!-- song list -->
     <div class="song-list">
       <p>song list here</p>
@@ -22,7 +20,7 @@
 <script lang="ts">
 import { db } from "@/firebase/config";
 import { getDoc, doc, DocumentData } from "firebase/firestore";
-import { defineComponent, onUnmounted, ref } from "vue";
+import { defineComponent, ref } from "vue";
 
 export default defineComponent({
   props: {
@@ -32,11 +30,10 @@ export default defineComponent({
     },
   },
 
-  async setup(props) {
+  setup(props) {
     const error = ref<null | string>("");
     const document = ref<DocumentData | null>(null);
-    onUnmounted(async () => {
-      const docSnap = await getDoc(doc(db, "playlists", props.id));
+    getDoc(doc(db, "playlists", props.id)).then((docSnap) => {
       if (docSnap.data()) {
         document.value = { ...docSnap.data(), id: docSnap.id };
         error.value = null;
@@ -44,6 +41,7 @@ export default defineComponent({
         error.value = "That playlist does not exist";
       }
     });
+
     return {
       playlist: document,
       error,

@@ -1,4 +1,10 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  NavigationGuardNext,
+  RouteLocationNormalized,
+  RouteRecordRaw,
+} from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import Login from "@/views/auth/Login.vue";
 import Signup from "@/views/auth/Signup.vue";
@@ -6,7 +12,11 @@ import CreatePlaylist from "@/views/playlists/CreatePlaylist.vue";
 import PlaylistDetails from "@/views/playlists/PlaylistDetails.vue";
 import { auth } from "@/firebase/config";
 
-const requireAuth = (to: any, from: any, next: any) => {
+const requireAuth = (
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
   if (!auth.currentUser) {
     next({ name: "login" });
   } else {
