@@ -1,16 +1,101 @@
 <template>
-  <div>
-    <h1>Playlist Details</h1>
-    <p>Playlist ID: {{ id }}</p>
+  // TODO: Fix Suspense
+  <div class="error" v-if="error">{{ error }}</div>
+  <div v-if="playlist" class="playlist-details">
+    <!-- playlist information -->
+    <div class="playlist-info">
+      <div class="cover">
+        <img :src="playlist.coverUrl" />
+      </div>
+      <h2>{{ playlist.title }}</h2>
+      <p class="username">Created by {{ playlist.userName }}</p>
+      <p class="description">{{ playlist.description }}</p>
+    </div>
+
+    <!-- song list -->
+    <div class="song-list">
+      <p>song list here</p>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-export default {
-  props: ["id"],
-};
+import { db } from "@/firebase/config";
+import { getDoc, doc, DocumentData } from "firebase/firestore";
+import { defineComponent, onUnmounted, ref } from "vue";
+
+export default defineComponent({
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+  },
+
+  async setup(props) {
+    const error = ref<null | string>("");
+    const document = ref<DocumentData | null>(null);
+    onUnmounted(async () => {
+      const docSnap = await getDoc(doc(db, "playlists", props.id));
+      if (docSnap.data()) {
+        document.value = { ...docSnap.data(), id: docSnap.id };
+        error.value = null;
+      } else {
+        error.value = "That playlist does not exist";
+      }
+    });
+    return {
+      playlist: document,
+      error,
+    };
+  },
+});
 </script>
 
 <style>
-/* Your CSS styles go here */
+.playlist-details {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 80px;
+}
+
+.cover {
+  overflow: hidden;
+  border-radius: 20px;
+  position: relative;
+  padding: 160px;
+}
+
+.cover img {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  max-width: 200%;
+  max-height: 200%;
+}
+
+.playlist-info {
+  text-align: center;
+}
+
+.playlist-info h2 {
+  text-transform: capitalize;
+  font-size: 28px;
+  margin-top: 20px;
+}
+
+.playlist-info p {
+  margin-bottom: 20px;
+}
+
+.username {
+  color: #999;
+}
+
+.description {
+  text-align: left;
+}
 </style>
