@@ -11,8 +11,10 @@
 </template>
 <script lang="ts">
 import { auth } from "@/firebase/config";
+import router from "@/router";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { ref } from "vue";
+
 export default {
   setup() {
     const displayName = ref("");
@@ -30,6 +32,7 @@ export default {
           password.value
         );
         await updateProfile(user.user, { displayName: displayName.value });
+        router.push({ name: "login" });
       } catch (err: any) {
         isPending.value = false;
         error.value = "Email is already in use";

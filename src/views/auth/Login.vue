@@ -10,9 +10,9 @@
 </template>
 <script lang="ts">
 import { auth } from "@/firebase/config";
+import router from "@/router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 
 export default {
   setup() {
@@ -20,18 +20,12 @@ export default {
     const password = ref("");
     const isPending = ref(false);
     const error = ref("");
-    const router = useRouter();
 
     const handleSubmit = async () => {
       try {
         isPending.value = true;
-        const response = await signInWithEmailAndPassword(
-          auth,
-          email.value,
-          password.value
-        );
+        await signInWithEmailAndPassword(auth, email.value, password.value);
         router.push({ name: "home" });
-        console.log(response.user);
       } catch (err: any) {
         isPending.value = false;
         error.value = "Incorrect login credentials";

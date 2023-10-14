@@ -9,7 +9,6 @@ import HomeView from "@/views/HomeView.vue";
 import Login from "@/views/auth/Login.vue";
 import Signup from "@/views/auth/Signup.vue";
 import CreatePlaylist from "@/views/playlists/CreatePlaylist.vue";
-import PlaylistDetails from "@/views/playlists/PlaylistDetails.vue";
 import { auth } from "@/firebase/config";
 
 const requireAuth = (
@@ -49,7 +48,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/playlists/:id",
     name: "playlistDetails",
-    component: PlaylistDetails,
+    component: () => import("@/views/playlists/PlaylistDetails.vue"),
     beforeEnter: requireAuth,
     props: true,
   },

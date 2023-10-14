@@ -20,7 +20,7 @@ import useStorage from "@/composables/useStorage";
 import { db } from "@/firebase/config";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import getUser from "@/composables/getUser";
-import { useRouter } from "vue-router";
+import router from "@/router";
 
 export default {
   setup() {
@@ -31,7 +31,6 @@ export default {
     const fileTypes = ["image/png", "image/jpeg"];
     const isPending = ref(false);
     const { user } = getUser();
-    const router = useRouter();
 
     const { url, uploadImage, filePath, error } = useStorage();
 
@@ -63,7 +62,6 @@ export default {
           }
         } catch (err: any) {
           isPending.value = false;
-          console.log(err.message);
         }
       }
     };
@@ -101,7 +99,6 @@ input[type="file"] {
 }
 
 label {
-  font-size: 14px;
   display: block;
   margin-top: 30px;
 }

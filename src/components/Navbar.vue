@@ -5,7 +5,9 @@
       <h1><router-link :to="{ name: 'home' }">Muso Ninjas</router-link></h1>
       <div class="links">
         <div v-if="currentUser">
-          <router-link :to="{ name: 'createPlaylist' }"> Create </router-link>
+          <router-link :to="{ name: 'createPlaylist' }">
+            Create playlist
+          </router-link>
           <button @click="handleClick">Logout</button>
         </div>
         <div v-else>
@@ -19,19 +21,18 @@
 
 <script lang="ts">
 import { auth } from "@/firebase/config";
+import router from "@/router";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 export default {
   setup() {
-    const route = useRouter();
     const currentUser = ref(auth.currentUser);
     onAuthStateChanged(auth, (user) => {
       currentUser.value = user;
     });
     const handleClick = async () => {
       await signOut(auth);
-      route.push({ name: "login" });
+      router.push({ name: "login" });
     };
     return {
       handleClick,
@@ -71,7 +72,6 @@ nav .links {
 nav .links a,
 button {
   margin-left: 16px;
-  font-size: 14px;
 }
 nav .links a:hover {
   text-decoration: underline;
