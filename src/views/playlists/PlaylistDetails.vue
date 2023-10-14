@@ -7,7 +7,7 @@
         <img :src="playlist.cover" />
       </div>
       <h2>{{ playlist.title }}</h2>
-      <p class="username">Created by {{ playlist.userName }}</p>
+      <p class="username">Created by {{ playlist.username }}</p>
       <p class="description">{{ playlist.description }}</p>
     </div>
     <!-- song list -->
@@ -15,12 +15,16 @@
       <p>song list here</p>
     </div>
   </div>
+  <button v-if="onwnership" @click="handleDelete">Delete playlist</button>
 </template>
 
 <script lang="ts">
-import { db } from "@/firebase/config";
-import { getDoc, doc, DocumentData } from "firebase/firestore";
-import { defineComponent, ref } from "vue";
+import getUser from "@/composables/getUser";
+import { db, storage } from "@/firebase/config";
+import router from "@/router";
+import { getDoc, doc, DocumentData, deleteDoc } from "firebase/firestore";
+import { deleteObject, ref as storageRef } from "firebase/storage";
+import { defineComponent, ref, onMounted, computed } from "vue";
 
 export default defineComponent({
   props: {
@@ -33,7 +37,11 @@ export default defineComponent({
   setup(props) {
     const error = ref<null | string>("");
     const document = ref<DocumentData | null>(null);
-    getDoc(doc(db, "playlists", props.id)).then((docSnap) => {
+    const { user } = getUser();
+    const docRef = doc(db, "playlists", props.id);
+
+    onMounted(async () => {
+      const docSnap = await getDoc(docRef);
       if (docSnap.data()) {
         document.value = { ...docSnap.data(), id: docSnap.id };
         error.value = null;
@@ -42,9 +50,29 @@ export default defineComponent({
       }
     });
 
+    const onwnership = computed(() => {
+      return (
+        document.value &&
+        user.value &&
+        user.value?.uid === document.value?.userId
+      );
+    });
+
+    const handleDelete = async () => {
+      try {
+        await deleteDoc(docRef);
+        await deleteObject(storageRef(storage, document.value?.filePath));
+        router.push({ name: "home" });
+      } catch (err: any) {
+        error.value = err.message;
+      }
+    };
+
     return {
       playlist: document,
       error,
+      onwnership,
+      handleDelete,
     };
   },
 });
@@ -58,21 +86,12 @@ export default defineComponent({
 }
 
 .cover {
-  overflow: hidden;
-  border-radius: 20px;
-  position: relative;
-  padding: 160px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .cover img {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  min-width: 100%;
-  min-height: 100%;
-  max-width: 200%;
-  max-height: 200%;
+  max-width: 100%;
 }
 
 .playlist-info {
