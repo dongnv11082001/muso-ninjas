@@ -12,13 +12,23 @@
     </div>
     <!-- song list -->
     <div class="song-list">
-      <p>song list here</p>
+      <div v-if="!playlist.songs.length">
+        No songs have been added to this playlist yet.
+      </div>
+      <div v-for="song in playlist.songs" :key="song.id" class="single-song">
+        <div class="details">
+          <p>{{ song.title }} - {{ song.artist }}</p>
+          <button v-if="ownership">Delete</button>
+        </div>
+      </div>
+      <AddSong :playlist="playlist" />
     </div>
   </div>
-  <button v-if="onwnership" @click="handleDelete">Delete playlist</button>
+  <button v-if="ownership" @click="handleDelete">Delete playlist</button>
 </template>
 
 <script lang="ts">
+import AddSong from "@/components/AddSong.vue";
 import getUser from "@/composables/getUser";
 import { db, storage } from "@/firebase/config";
 import router from "@/router";
@@ -33,13 +43,11 @@ export default defineComponent({
       required: true,
     },
   },
-
   setup(props) {
     const error = ref<null | string>("");
     const document = ref<DocumentData | null>(null);
     const { user } = getUser();
     const docRef = doc(db, "playlists", props.id);
-
     onMounted(async () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.data()) {
@@ -49,15 +57,13 @@ export default defineComponent({
         error.value = "That playlist does not exist";
       }
     });
-
-    const onwnership = computed(() => {
+    const ownership = computed(() => {
       return (
         document.value &&
         user.value &&
         user.value?.uid === document.value?.userId
       );
     });
-
     const handleDelete = async () => {
       try {
         await deleteDoc(docRef);
@@ -67,14 +73,14 @@ export default defineComponent({
         error.value = err.message;
       }
     };
-
     return {
       playlist: document,
       error,
-      onwnership,
+      ownership,
       handleDelete,
     };
   },
+  components: { AddSong },
 });
 </script>
 
@@ -114,5 +120,10 @@ export default defineComponent({
 
 .description {
   text-align: left;
+}
+.details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
