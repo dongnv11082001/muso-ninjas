@@ -4,7 +4,7 @@
     <!-- playlist information -->
     <div class="playlist-info">
       <div class="cover">
-        <img :src="playlist.cover" />
+        <img :src="playlist.cover" :alt="playlist.title" />
       </div>
       <h2>{{ playlist.title }}</h2>
       <p class="username">Created by {{ playlist.username }}</p>

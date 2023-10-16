@@ -5,10 +5,6 @@ import {
   RouteLocationNormalized,
   RouteRecordRaw,
 } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
-import Login from "@/views/auth/Login.vue";
-import Signup from "@/views/auth/Signup.vue";
-import CreatePlaylist from "@/views/playlists/CreatePlaylist.vue";
 import { auth } from "@/firebase/config";
 
 const requireAuth = (
@@ -27,22 +23,22 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "home",
-    component: HomeView,
+    component: () => import("@/views/HomeView.vue"),
   },
   {
     path: "/login",
     name: "login",
-    component: Login,
+    component: () => import("@/views/auth/Login.vue"),
   },
   {
     path: "/signup",
     name: "signup",
-    component: Signup,
+    component: () => import("@/views/auth/Signup.vue"),
   },
   {
     path: "/playlists/create",
     name: "createPlaylist",
-    component: CreatePlaylist,
+    component: () => import("@/views/playlists/CreatePlaylist.vue"),
     beforeEnter: requireAuth,
   },
   {
@@ -51,6 +47,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/playlists/PlaylistDetails.vue"),
     beforeEnter: requireAuth,
     props: true,
+  },
+  {
+    path: "/playlists/user",
+    name: "userPlaylists",
+    component: () => import("@/views/playlists/UserPlaylists.vue"),
+    beforeEnter: requireAuth,
   },
 ];
 

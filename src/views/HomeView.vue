@@ -1,8 +1,8 @@
 <template>
   <div class="home">
     <div v-if="error" class="error">Could not fetch the data</div>
-    <div v-if="documents">
-      <ListView :playlists="documents" />
+    <div v-if="playlists">
+      <ListView :playlists="playlists" />
     </div>
   </div>
 </template>
@@ -17,8 +17,8 @@ export default {
     ListView,
   },
   setup() {
-    const { error, documents } = getCollection("playlists");
-    return { error, documents };
+    const { error, documents: playlists } = getCollection("playlists");
+    return { error, playlists };
   },
 };
 </script>
